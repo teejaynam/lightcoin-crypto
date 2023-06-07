@@ -28,7 +28,7 @@ class Transaction {
   }
 
   commit() {
-    if (this.isAllowed()) {
+    if (this.isAllowed()) { //how can this superclass access subclass method? does it become apart of the superclass?
     //keep date of transaction
       this.time = new Date();
       //add transaction to account
