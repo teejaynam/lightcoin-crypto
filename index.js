@@ -2,7 +2,20 @@ class Account {
 
   constructor(username) {
     this.username = username;
-    this.balance = 0;
+    this.transactions = [];
+  }
+
+  get balance() {
+    let balance = 0;
+
+    for (let transaction of this.transactions) {
+      balance += transaction.value;
+    }
+    return balance;
+  }
+
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
   }
 
 }
@@ -14,20 +27,41 @@ class Transaction {
     this.account = account;
   }
 
+  commit() {
+    if (this.isAllowed()) {
+    //keep date of transaction
+      this.time = new Date();
+      //add transaction to account
+      this.account.addTransaction(this);
+      return true;
+    } else {
+      console.log("Not enough balance");
+      return false;
+    }
+  }
+
 }
 
 class Withdrawal extends Transaction {
 
-  commit() {
-    this.account.balance -= this.amount;
+  isAllowed() {
+    return (this.account.balance - this.amount >= 0);
+  }
+
+  get value() {
+    return -this.amount;
   }
 
 }
 
 class Deposit extends Transaction {
 
-  commit() {
-    this.account.balance += this.amount;
+  isAllowed() {
+    return true;
+  }
+
+  get value() {
+    return this.amount;
   }
 
 }
@@ -40,18 +74,20 @@ class Deposit extends Transaction {
 
 const myAccount = new Account("snow-patrol");
 
-t1 = new Withdrawal(50.25, myAccount);
-t1.commit();
-console.log('Transaction 1:', t1);
+console.log("Starting balance", myAccount.balance);
 
-t2 = new Withdrawal(9.99, myAccount);
-t2.commit();
-console.log('Transaction 2:', t2);
+console.log("Can't withdraw 50 from 0")
+t1 = new Withdrawal(50, myAccount);
+console.log("Commit result: ", t1.commit());
+console.log("Account Balance: ", myAccount.balance);
 
-t3 = new Deposit(120.00, myAccount);
-t3.commit();
-console.log('Transaction 3:', t3);
+console.log("Deposit should succeed!")
+t3 = new Deposit(260.00, myAccount);
+console.log("Commit result: ", t3.commit());
+console.log("Account Balance: ", myAccount.balance);
 
-console.log('Balance:', myAccount.balance);
+
+console.log('Ending balance', myAccount.balance);
+console.log("Transaction history", myAccount.transactions);
 
 
